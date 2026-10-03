@@ -1,1 +1,283 @@
+01_Data_Preparation.R
+
+library(readxl)
+library(dplyr)
+
+traits <- read.csv(
+  "data/5._Leaf_and_root_functional_traits.csv"
+)
+
+responses <- read.csv(
+  "data/2._Mycorrhizal_responses_of_plant.csv"
+)
+
+trait_data <- merge(
+  traits,
+  responses,
+  by = c(
+    "species",
+    "replicate"
+  )
+)
+
+write.csv(
+  trait_data,
+  "data/trait_data_merged.csv",
+  row.names = FALSE
+)
+
+head(trait_data)
+
+02_Train_RF_Model.R
+
+library(randomForest)
+library(caret)
+
+trait_data <- read.csv(
+  "data/trait_data_merged.csv"
+)
+
+set.seed(123)
+
+trainIndex <- createDataPartition(
+  trait_data$total_MGR,
+  p = 0.80,
+  list = FALSE
+)
+
+train <- trait_data[trainIndex, ]
+test  <- trait_data[-trainIndex, ]
+
+rf_mgr <- randomForest(
+  total_MGR ~
+    LDMC +
+    SLA +
+    LCC +
+    LNC +
+    RD +
+    SRL +
+    RTD +
+    SRA +
+    RCC +
+    RNC +
+    precipitation,
+  data = train,
+  ntree = 1000,
+  importance = TRUE
+)
+
+saveRDS(
+  rf_mgr,
+  "data/Trait2Myco_RF_Model.rds"
+)
+
+03_CrossValidation.R
+
+library(caret)
+
+trait_data <- read.csv(
+  "data/trait_data_merged.csv"
+)
+
+control <- trainControl(
+  method = "cv",
+  number = 10
+)
+
+rf_cv <- train(
+  total_MGR ~
+    LDMC +
+    SLA +
+    LCC +
+    LNC +
+    RD +
+    SRL +
+    RTD +
+    SRA +
+    RCC +
+    RNC +
+    precipitation,
+  data = trait_data,
+  method = "rf",
+  trControl = control
+)
+
+rf_cv
+
+04_VariableImportance.R
+
+library(randomForest)
+library(ggplot2)
+
+rf_mgr <- readRDS(
+  "data/Trait2Myco_RF_Model.rds"
+)
+
+imp <- importance(rf_mgr)
+
+importance_df <- data.frame(
+  Trait = rownames(imp),
+  Importance = imp[,1]
+)
+
+ggplot(
+  importance_df,
+  aes(
+    x = reorder(
+      Trait,
+      Importance
+    ),
+    y = Importance,
+    fill = Importance
+  )
+) +
+  geom_col() +
+  coord_flip() +
+  theme_classic()
+
+05_PartialDependence.R
+
+library(pdp)
+library(ggplot2)
+
+rf_mgr <- readRDS(
+  "data/Trait2Myco_RF_Model.rds"
+)
+
+pd_sla <- partial(
+  rf_mgr,
+  pred.var = "SLA"
+)
+
+ggplot(
+  pd_sla,
+  aes(SLA, yhat)
+) +
+  geom_line(
+    linewidth = 1.3,
+    colour = "#0072B2"
+  ) +
+  theme_classic()
+
+06_TraitCategoryImportance.R
+
+library(randomForest)
+library(ggplot2)
+
+rf_mgr <- readRDS(
+ "data/Trait2Myco_RF_Model.rds"
+)
+
+imp <- importance(rf_mgr)
+
+leaf_traits <- sum(
+ imp[c(
+  "LDMC",
+  "SLA",
+  "LCC",
+  "LNC"
+ ),1]
+)
+
+root_traits <- sum(
+ imp[c(
+  "RD",
+  "SRL",
+  "RTD",
+  "SRA",
+  "RCC",
+  "RNC"
+ ),1]
+)
+
+environment <- imp[
+ "precipitation",
+ 1
+]
+
+category_df <- data.frame(
+ Category = c(
+  "Leaf Traits",
+  "Root Traits",
+  "Environmental Factors"
+ ),
+ Importance = c(
+  leaf_traits,
+  root_traits,
+  environment
+ )
+)
+
+total_imp <- sum(
+ category_df$Importance
+)
+
+category_df$Percent <-
+100 *
+category_df$Importance /
+total_imp
+
+ggplot(
+ category_df,
+ aes(
+  x = Category,
+  y = Percent,
+  fill = Category
+ )
+) +
+ geom_col(width = 0.7) +
+ geom_text(
+  aes(
+   label = paste0(
+    round(Percent,1),
+    "%"
+   )
+  ),
+  vjust = -0.5,
+  size = 5
+ ) +
+ theme_classic()
+
+predict_mgr.R
+
+predict_mgr <- function(
+  SLA,
+  RCC,
+  SRA,
+  precipitation,
+  LDMC = 0,
+  LCC = 0,
+  LNC = 0,
+  RD = 0,
+  SRL = 0,
+  RTD = 0,
+  RNC = 0
+){
+
+  model <- readRDS(
+    "data/Trait2Myco_RF_Model.rds"
+  )
+
+  newdata <- data.frame(
+    LDMC,
+    SLA,
+    LCC,
+    LNC,
+    RD,
+    SRL,
+    RTD,
+    SRA,
+    RCC,
+    RNC,
+    precipitation
+  )
+
+  predict(
+    model,
+    newdata = newdata
+  )
+}
+
+
+
 
