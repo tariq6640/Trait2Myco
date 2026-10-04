@@ -6,7 +6,12 @@ type: software
 authors:
   - family-names: "Shah"
     given-names: "Tariq"
-    email: "shahzeb1950@gmail.com"
+
+  - family-names: "Errahmouni"
+    given-names: "Mohamed Akram"
+
+  - family-names: "Hijri"
+    given-names: "Mohamed"
 
 repository-code: "https://github.com/tariq6640/Trait2Myco"
 
@@ -14,7 +19,7 @@ license: MIT
 
 version: "0.1.0"
 
-date-released: 2026-10-04
+date-released: "2026-10-04"
 
 abstract: >
   Trait2Myco is a Random Forest-based framework for predicting
@@ -24,8 +29,7 @@ abstract: >
 keywords:
   - arbuscular mycorrhizal fungi
   - mycorrhizal growth response
+  - machine learning
   - plant functional traits
   - random forest
   - ecology
-  - Trait2Myco
-`
