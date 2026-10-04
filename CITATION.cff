@@ -1,0 +1,31 @@
+cff-version: 1.2.0
+title: "Trait2Myco"
+message: "If you use Trait2Myco, please cite it using the metadata below."
+type: software
+
+authors:
+  - family-names: "Shah"
+    given-names: "Tariq"
+    email: "shahzeb1950@gmail.com"
+
+repository-code: "https://github.com/tariq6640/Trait2Myco"
+
+license: MIT
+
+version: "0.1.0"
+
+date-released: 2026-10-04
+
+abstract: >
+  Trait2Myco is a Random Forest-based framework for predicting
+  mycorrhizal growth response (MGR) from plant functional traits
+  and environmental variables.
+
+keywords:
+  - arbuscular mycorrhizal fungi
+  - mycorrhizal growth response
+  - plant functional traits
+  - random forest
+  - ecology
+  - Trait2Myco
+`
