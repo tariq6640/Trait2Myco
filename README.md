@@ -1,19 +1,36 @@
 # Trait2Myco
-Machine-learning framework for predicting responsiveness to arbuscular mycorrhizal fungi from plant functional traits and environmental variables.
 
-## Inputs
+Trait2Myco is an R package for predicting mycorrhizal growth response (MGR) using plant functional traits and environmental variables.
 
-- Specific Leaf Area (SLA)
-- Root Carbon Concentration (RCC)
-- Specific Root Area (SRA)
-- Specific Root Length (SRL)
-- Root Diameter (RD)
-- Leaf Nitrogen Concentration (LNC)
-- Precipitation
+## Installation
 
-## Output
+```r
+install.packages("remotes")
 
-- Predicted Mycorrhizal Growth Response (MGR)
+remotes::install_github(
+  "tariq6640/Trait2Myco"
+)
+```
+
+## Example
+
+```r
+library(Trait2Myco)
+
+predict_mgr(
+  LDMC = 150,
+  SLA = 25,
+  LCC = 4.2,
+  LNC = 0.45,
+  RD = 0.25,
+  SRL = 650,
+  RTD = 0.03,
+  SRA = 3200,
+  RCC = 4.5,
+  RNC = 0.18,
+  precipitation = 800
+)
+```
 
 ## Authors
 
